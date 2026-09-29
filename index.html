@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#111318">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg">
+<title>Ritmo</title>
+<style>
+:root{--bg:#111318;--card:#1B1E25;--seg:#2A2E37;--tx:#F2F2F0;--mu:#8A8F98;--ac:#FF6B3D;--ok:#8FD19E}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--tx);font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-variant-numeric:tabular-nums}
+main{height:100%;max-width:480px;margin:0 auto;padding:max(18px,env(safe-area-inset-top)) 18px max(18px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px}
+section[hidden]{display:none}
+section{display:flex;flex-direction:column;gap:16px;flex:1}
+.lb{color:var(--mu);font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+.center{text-align:center}
+.seg{display:flex;gap:3px}.seg span{flex:1;height:4px;border-radius:2px;background:var(--seg)}.seg .d{background:var(--ac)}.seg .u{background:#FFC8B5}
+.mt{display:flex;justify-content:space-between;text-align:center}.mt b{display:block;font-size:24px;font-weight:500}
+.card{background:var(--card);border-radius:14px;padding:12px 14px}
+button{font:inherit;border:0;cursor:pointer;color:inherit}
+button:focus-visible{outline:2px solid var(--tx);outline-offset:2px}
+.pri{background:var(--ac);color:#1A0A04;border-radius:999px;padding:16px;font-size:17px;font-weight:500;margin-top:auto;width:100%}
+.sec{background:var(--card);border-radius:999px;padding:12px 18px}
+.big{font-size:clamp(64px,22vw,96px);font-weight:500;line-height:1}
+.chip{display:inline-block;border-radius:999px;padding:4px 12px;font-size:13px;background:#22352A;color:var(--ok)}
+.chip.warn{background:#3A2A22;color:#FFC8B5}
+.pause{width:56px;height:56px;border-radius:50%;background:var(--ac);color:#1A0A04;font-size:20px;font-weight:500}
+.row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+</style>
+</head>
+<body>
+<main>
+
+<section id="pre">
+  <div class="center"><div class="lb">Para começar</div>
+    <h1 style="font-size:24px;font-weight:500;color:var(--ac);margin:6px 0 0">1,6 km de aquecimento</h1>
+    <div class="lb" style="margin-top:10px">Próximo</div><div>400 m a 4:30/km</div></div>
+  <div class="seg" id="segPre"></div>
+  <div class="mt"><div><b>0,00</b><span class="lb">km</span></div><div><b>0:00</b><span class="lb">tempo</span></div><div><b>--:--</b><span class="lb">ritmo médio</span></div></div>
+  <div class="card" style="flex:1;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--mu)" id="gpsBox">Procurando sinal de GPS…</div>
+  <button class="pri" id="go">Iniciar</button>
+</section>
+
+<section id="run" hidden>
+  <div class="seg" id="segRun"></div>
+  <div class="center" style="margin-top:12px"><div class="lb" id="bn"></div>
+    <div class="big" id="pace">--:--</div>
+    <div style="color:var(--mu)" id="tgt">/km</div>
+    <div style="margin-top:10px"><span class="chip" id="chip">Aguardando</span></div></div>
+  <div class="card center"><span class="lb">Próximo</span><div style="font-size:17px" id="nx"></div></div>
+  <div class="mt"><div><b id="dist">0,00</b><span class="lb">km</span></div><div><b id="time">0:00</b><span class="lb">tempo</span></div><div><b id="avg">--:--</b><span class="lb">ritmo médio</span></div></div>
+  <div class="row" style="margin-top:auto">
+    <div class="card" style="flex:1;color:var(--mu);min-height:56px;display:flex;align-items:center" id="voice">Voz ativada</div>
+    <button class="sec" id="stop">Encerrar</button>
+    <button class="pause" id="pz" aria-label="Pausar">II</button>
+  </div>
+</section>
+
+<section id="end" hidden>
+  <div class="center" style="margin-top:20px"><div class="lb">Treino concluído</div><h1 style="font-weight:500;font-size:28px;margin:6px 0">Tiros de 400 m</h1></div>
+  <div class="mt" style="margin-top:20px"><div><b id="eD">0,00</b><span class="lb">km</span></div><div><b id="eT">0:00</b><span class="lb">tempo</span></div><div><b id="eP">--:--</b><span class="lb">ritmo médio</span></div></div>
+  <button class="pri" onclick="location.reload()">Novo treino</button>
+</section>
+
+</main>
+<script>
+/* treino: blocos por distância (m) e ritmo alvo (s/km) */
+const W=[{n:'Aquecimento',d:1600,p:360}];
+for(let i=1;i<=6;i++){W.push({n:'Tiro '+i+' de 6',d:400,p:270});W.push({n:'Trote',d:200});}
+W.push({n:'Desaquecimento',d:1000,p:375});
+
+const $=id=>document.getElementById(id);
+const SIM=location.search.includes('sim');
+const fmt=s=>isFinite(s)&&s>0?Math.floor(s/60)+':'+String(Math.round(s%60)).padStart(2,'0').replace(/^60$/,'59'):'--:--';
+const km=m=>(m/1000).toFixed(2).replace('.',',');
+const clock=s=>{s=Math.floor(s);const h=Math.floor(s/3600),m=Math.floor(s%3600/60);return (h?h+':'+String(m).padStart(2,'0'):m)+':'+String(s%60).padStart(2,'0')};
+
+/* voz */
+function say(t){$('voice').textContent='“'+t+'”';try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='pt-BR';speechSynthesis.speak(u)}catch(e){}}
+const spoken=p=>{const m=Math.floor(p/60),s=Math.round(p%60);return s?m+' e '+s:m+' minutos'};
+
+/* gps */
+let acc=null,last=null;
+const hav=(a,b)=>{const R=6371000,r=x=>x*Math.PI/180,dl=r(b.lat-a.lat),dn=r(b.lon-a.lon),q=Math.sin(dl/2)**2+Math.cos(r(a.lat))*Math.cos(r(b.lat))*Math.sin(dn/2)**2;return 2*R*Math.asin(Math.sqrt(q))};
+function onFix(pos){
+  acc=pos.coords.accuracy;
+  const bars=acc<=10?'GPS: sinal bom':acc<=30?'GPS: sinal razoável':'GPS: sinal fraco';
+  $('gpsBox').textContent=bars+' (±'+Math.round(acc)+' m)';
+  if(!running||acc>30)return;
+  const p={lat:pos.coords.latitude,lon:pos.coords.longitude,t:pos.timestamp};
+  if(last){const d=hav(last,p),dt=(p.t-last.t)/1000;if(d>=3&&dt>0&&d/dt<10){feed(d);last=p}}else last=p;
+}
+function startGps(){
+  if(SIM){$('gpsBox').textContent='Modo simulação: sem GPS real';return}
+  if(!navigator.geolocation){$('gpsBox').textContent='Este aparelho não tem GPS no navegador.';return}
+  navigator.geolocation.watchPosition(onFix,e=>{$('gpsBox').textContent=e.code===1?'Permita o acesso à localização para treinar.':'Sem sinal de GPS.'},{enableHighAccuracy:true,maximumAge:0,timeout:15000});
+}
+
+/* treino */
+let running=false,bi=0,bd=0,td=0,acum=0,t0=0,samples=[],lastCue=0,said100=false,simId=0,wl=null;
+const elapsed=()=>acum+(running?(Date.now()-t0)/1000:0);
+function buildSeg(id){$(id).innerHTML=W.map(()=>'<span></span>').join('')}
+function startBlock(){const b=W[bi];said100=false;lastCue=Date.now();say(b.n+(b.p?', ritmo alvo '+spoken(b.p):''))}
+function curPace(){if(samples.length<2)return NaN;const a=samples[0],z=samples[samples.length-1],dd=z[1]-a[1];return dd>5?((z[0]-a[0])/1000)/(dd/1000):NaN}
+function feed(d){
+  if(!running)return;
+  td+=d;bd+=d;const now=Date.now();samples.push([now,td]);while(samples.length&&now-samples[0][0]>12000)samples.shift();
+  while(bd>=W[bi].d){bd-=W[bi].d;bi++;if(bi>=W.length){finish();return}startBlock()}
+  const b=W[bi],p=curPace();
+  if(!said100&&W[bi].d-bd<=100&&W[bi].d>=300){said100=true;say('Faltam cem metros')}
+  if(b.p&&isFinite(p)&&now-lastCue>30000){if(p>b.p+15){say('Acelere um pouco');lastCue=now}else if(p<b.p-15){say('Desacelere um pouco');lastCue=now}}
+  render(p);
+}
+function render(p){
+  const b=W[bi],nx=W[bi+1];
+  $('bn').textContent=b.n;
+  $('pace').textContent=fmt(p);
+  $('tgt').textContent='/km'+(b.p?' · alvo '+fmt(b.p):'');
+  const c=$('chip');
+  if(!b.p||!isFinite(p)){c.textContent=isFinite(p)?'Ritmo livre':'Aguardando';c.className='chip'}
+  else if(p>b.p+10){c.textContent='Acelere';c.className='chip warn'}
+  else if(p<b.p-10){c.textContent='Desacelere';c.className='chip warn'}
+  else{c.textContent='No ritmo';c.className='chip'}
+  $('nx').textContent=nx?nx.d+' m · '+nx.n+(nx.p?' a '+fmt(nx.p)+'/km':''):'Última parte';
+  document.querySelectorAll('#segRun span').forEach((s,i)=>s.className=i<bi?'d':i===bi?'u':'');
+  $('dist').textContent=km(td);
+  $('time').textContent=clock(elapsed());
+  $('avg').textContent=td>50?fmt(elapsed()/(td/1000)):'--:--';
+}
+async function begin(){
+  if(!SIM&&(acc===null||acc>30)){$('gpsBox').textContent='Aguarde o sinal de GPS melhorar para começar.';return}
+  $('pre').hidden=true;$('run').hidden=false;
+  running=true;t0=Date.now();last=null;
+  try{wl=await navigator.wakeLock.request('screen')}catch(e){}
+  say('Vamos começar');setTimeout(startBlock,1800);
+  if(SIM)simId=setInterval(()=>feed(3.6),1000);
+  setInterval(()=>{if(running)render(curPace())},1000);
+  render(NaN);
+}
+function pause(){
+  if(running){acum+=(Date.now()-t0)/1000;running=false;$('pz').textContent='▶';$('pz').setAttribute('aria-label','Retomar');say('Treino pausado')}
+  else{running=true;t0=Date.now();last=null;samples=[];$('pz').textContent='II';$('pz').setAttribute('aria-label','Pausar');say('Retomando')}
+}
+function finish(){
+  const t=elapsed();running=false;clearInterval(simId);try{wl&&wl.release()}catch(e){}
+  say('Treino concluído. Bom trabalho');
+  $('run').hidden=true;$('end').hidden=false;
+  $('eD').textContent=km(td);$('eT').textContent=clock(t);$('eP').textContent=td>50?fmt(t/(td/1000)):'--:--';
+}
+buildSeg('segPre');buildSeg('segRun');
+document.querySelector('#segPre span').className='u';
+$('go').onclick=begin;$('pz').onclick=pause;$('stop').onclick=finish;
+startGps();
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
+</script>
+</body>
+</html>
