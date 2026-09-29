@@ -11,39 +11,68 @@
 :root{--bg:#111318;--card:#1B1E25;--seg:#2A2E37;--tx:#F2F2F0;--mu:#8A8F98;--ac:#FF6B3D;--ok:#8FD19E}
 *{box-sizing:border-box}
 html,body{height:100%;margin:0;background:var(--bg);color:var(--tx);font:15px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-variant-numeric:tabular-nums}
-main{height:100%;max-width:480px;margin:0 auto;padding:max(18px,env(safe-area-inset-top)) 18px max(18px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:16px}
+main{height:100%;max-width:480px;margin:0 auto;padding:max(18px,env(safe-area-inset-top)) 18px max(18px,env(safe-area-inset-bottom));display:flex;flex-direction:column}
+section{display:flex;flex-direction:column;gap:14px;flex:1;min-height:0}
 section[hidden]{display:none}
-section{display:flex;flex-direction:column;gap:16px;flex:1}
+.scroll{overflow-y:auto;flex:1;min-height:0;display:flex;flex-direction:column;gap:10px}
 .lb{color:var(--mu);font-size:12px;letter-spacing:.06em;text-transform:uppercase}
 .center{text-align:center}
 .seg{display:flex;gap:3px}.seg span{flex:1;height:4px;border-radius:2px;background:var(--seg)}.seg .d{background:var(--ac)}.seg .u{background:#FFC8B5}
 .mt{display:flex;justify-content:space-between;text-align:center}.mt b{display:block;font-size:24px;font-weight:500}
 .card{background:var(--card);border-radius:14px;padding:12px 14px}
 button{font:inherit;border:0;cursor:pointer;color:inherit}
-button:focus-visible{outline:2px solid var(--tx);outline-offset:2px}
-.pri{background:var(--ac);color:#1A0A04;border-radius:999px;padding:16px;font-size:17px;font-weight:500;margin-top:auto;width:100%}
+button:focus-visible,input:focus-visible{outline:2px solid var(--tx);outline-offset:2px}
+.pri{background:var(--ac);color:#1A0A04;border-radius:999px;padding:16px;font-size:17px;font-weight:500;width:100%}
 .sec{background:var(--card);border-radius:999px;padding:12px 18px}
+.sm{padding:6px 12px;font-size:13px;background:var(--seg)}
 .big{font-size:clamp(64px,22vw,96px);font-weight:500;line-height:1}
 .chip{display:inline-block;border-radius:999px;padding:4px 12px;font-size:13px;background:#22352A;color:var(--ok)}
 .chip.warn{background:#3A2A22;color:#FFC8B5}
 .pause{width:56px;height:56px;border-radius:50%;background:var(--ac);color:#1A0A04;font-size:20px;font-weight:500}
 .row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.bars{display:flex;align-items:flex-end;gap:2px;height:46px}.bars span{border-radius:2px}
+.in{background:#0E1014;border:1px solid var(--seg);border-radius:10px;color:inherit;font:inherit;padding:9px 10px;width:100%;margin-top:4px}
+.fg{display:grid;grid-template-columns:repeat(auto-fit,minmax(90px,1fr));gap:8px}
+.fg label{font-size:12px;color:var(--mu)}
+.wk{font-size:12px;color:var(--mu)}.wk span{color:var(--tx);display:block;font-size:15px}.wk .t{background:var(--ac);color:#1A0A04;border-radius:10px;padding:2px 8px}.wk .t span{color:#1A0A04}
 </style>
 </head>
 <body>
 <main>
 
+<section id="home">
+  <div><div class="lb" id="dt"></div><h1 style="font-size:28px;font-weight:500;margin:4px 0 0">Ritmo</h1></div>
+  <div class="mt wk" id="wk"></div>
+  <div class="lb">Meus treinos</div>
+  <div class="scroll" id="list"></div>
+  <button class="pri" id="nw">Criar treino</button>
+</section>
+
+<section id="edit">
+  <div class="row"><button class="sec sm" id="eb">Voltar</button><span class="lb" id="et"></span><span style="width:64px"></span></div>
+  <input class="in" id="nm" maxlength="40" placeholder="Nome do treino" aria-label="Nome do treino" style="font-size:20px">
+  <div class="bars" id="pv"></div>
+  <div class="scroll" id="bl"></div>
+  <div class="row" id="add" style="flex-wrap:wrap;justify-content:flex-start;gap:8px">
+    <button class="sec sm" data-a="w">+ Aquecimento</button><button class="sec sm" data-a="i">+ Tiros</button><button class="sec sm" data-a="c">+ Corrida</button><button class="sec sm" data-a="k">+ Desaquecimento</button>
+  </div>
+  <div id="msg" style="color:#FFC8B5;min-height:18px"></div>
+  <button class="pri" id="sv">Salvar treino</button>
+  <button class="sec" id="del" hidden>Excluir treino</button>
+</section>
+
 <section id="pre">
+  <div class="row"><button class="sec sm" id="pb">Voltar</button><span class="lb" id="wn"></span><span style="width:64px"></span></div>
   <div class="center"><div class="lb">Para começar</div>
-    <h1 style="font-size:24px;font-weight:500;color:var(--ac);margin:6px 0 0">1,6 km de aquecimento</h1>
-    <div class="lb" style="margin-top:10px">Próximo</div><div>400 m a 4:30/km</div></div>
+    <h1 style="font-size:24px;font-weight:500;color:var(--ac);margin:6px 0 0" id="pt"></h1><div id="pd"></div>
+    <div class="lb" style="margin-top:10px">Próximo</div><div id="pn"></div></div>
   <div class="seg" id="segPre"></div>
   <div class="mt"><div><b>0,00</b><span class="lb">km</span></div><div><b>0:00</b><span class="lb">tempo</span></div><div><b>--:--</b><span class="lb">ritmo médio</span></div></div>
   <div class="card" style="flex:1;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--mu)" id="gpsBox">Procurando sinal de GPS…</div>
   <button class="pri" id="go">Iniciar</button>
 </section>
 
-<section id="run" hidden>
+<section id="run">
   <div class="seg" id="segRun"></div>
   <div class="center" style="margin-top:12px"><div class="lb" id="bn"></div>
     <div class="big" id="pace">--:--</div>
@@ -58,36 +87,83 @@ button:focus-visible{outline:2px solid var(--tx);outline-offset:2px}
   </div>
 </section>
 
-<section id="end" hidden>
-  <div class="center" style="margin-top:20px"><div class="lb">Treino concluído</div><h1 style="font-weight:500;font-size:28px;margin:6px 0">Tiros de 400 m</h1></div>
+<section id="end">
+  <div class="center" style="margin-top:20px"><div class="lb">Treino concluído</div><h1 style="font-weight:500;font-size:28px;margin:6px 0" id="en"></h1></div>
   <div class="mt" style="margin-top:20px"><div><b id="eD">0,00</b><span class="lb">km</span></div><div><b id="eT">0:00</b><span class="lb">tempo</span></div><div><b id="eP">--:--</b><span class="lb">ritmo médio</span></div></div>
-  <button class="pri" onclick="location.reload()">Novo treino</button>
+  <button class="pri" style="margin-top:auto" onclick="location.reload()">Voltar ao início</button>
 </section>
 
 </main>
 <script>
-/* treino: blocos por distância (m) e ritmo alvo (s/km) */
-const W=[{n:'Aquecimento',d:1600,p:360}];
-for(let i=1;i<=6;i++){W.push({n:'Tiro '+i+' de 6',d:400,p:270});W.push({n:'Trote',d:200});}
-W.push({n:'Desaquecimento',d:1000,p:375});
-
 const $=id=>document.getElementById(id);
-const SIM=location.search.includes('sim');
-const fmt=s=>isFinite(s)&&s>0?Math.floor(s/60)+':'+String(Math.round(s%60)).padStart(2,'0').replace(/^60$/,'59'):'--:--';
+const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const show=id=>['home','edit','pre','run','end'].forEach(s=>$(s).hidden=s!==id);
+const pad=n=>String(n).padStart(2,'0');
+const fmt=s=>{if(!isFinite(s)||s<=0)return '--:--';const r=Math.round(s);return Math.floor(r/60)+':'+pad(r%60)};
 const km=m=>(m/1000).toFixed(2).replace('.',',');
-const clock=s=>{s=Math.floor(s);const h=Math.floor(s/3600),m=Math.floor(s%3600/60);return (h?h+':'+String(m).padStart(2,'0'):m)+':'+String(s%60).padStart(2,'0')};
+const dm=m=>m>=1000?String(+(m/1000).toFixed(2)).replace('.',',')+' km':m+' m';
+const clock=s=>{s=Math.floor(s);const h=Math.floor(s/3600),m=Math.floor(s%3600/60);return (h?h+':'+pad(m):m)+':'+pad(s%60)};
+const pp=s=>{const m=/^(\d{1,2}):(\d{2})$/.exec(s.trim());return m?+m[1]*60+ +m[2]:null};
+
+/* dados: treinos salvos no aparelho */
+const NM={w:'Aquecimento',c:'Corrida',k:'Desaquecimento',i:'Tiros'};
+let store=[];try{store=JSON.parse(localStorage.getItem('ritmo.w'))||[]}catch(e){}
+if(!store.length)store=[{id:1,name:'Tiros de 400 m',blocks:[{t:'w',d:1600,p:360},{t:'i',reps:6,d:400,p:270,rd:200},{t:'k',d:1000,p:375}]}];
+const persist=()=>{try{localStorage.setItem('ritmo.w',JSON.stringify(store))}catch(e){}};
+function flat(w){const o=[];w.blocks.forEach(b=>{if(b.t==='i')for(let i=1;i<=b.reps;i++){o.push({n:'Tiro '+i+' de '+b.reps,d:b.d,p:b.p});if(b.rd&&i<b.reps)o.push({n:'Trote',d:b.rd})}else o.push({n:NM[b.t],d:b.d,p:b.p})});return o}
+const tot=w=>flat(w).reduce((a,b)=>a+b.d,0);
+const mins=w=>Math.round(flat(w).reduce((a,b)=>a+b.d/1000*(b.p||360),0)/60);
+const bars=w=>flat(w).map(b=>`<span style="flex:${b.d};height:${!b.p?30:b.p<=300?100:b.p<=345?70:45}%;background:${!b.p?'#8A5545':b.p<=300?'var(--ac)':'#4A4F5A'}"></span>`).join('');
+
+/* home */
+function home(){
+  const d=new Date();$('dt').textContent=d.toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
+  const mo=new Date(d);mo.setDate(d.getDate()-(d.getDay()+6)%7);
+  $('wk').innerHTML=[...'STQQSSD'].map((l,i)=>{const x=new Date(mo);x.setDate(mo.getDate()+i);return `<div class="${x.toDateString()===d.toDateString()?'t':''}">${l}<span>${x.getDate()}</span></div>`}).join('');
+  $('list').innerHTML=store.length?store.map(w=>`<div class="card wc" data-id="${w.id}" style="cursor:pointer"><div class="row"><b style="font-weight:500;font-size:17px">${esc(w.name)}</b><button class="sm" data-e="${w.id}">Editar</button></div><div style="color:var(--mu);margin:2px 0 10px">${dm(tot(w))} · ${mins(w)} min</div><div class="bars">${bars(w)}</div></div>`).join(''):'<div style="color:var(--mu)">Nenhum treino ainda. Crie o primeiro abaixo.</div>';
+  show('home');
+}
+$('list').onclick=e=>{const b=e.target.closest('[data-e]');if(b)return edit(b.dataset.e);const c=e.target.closest('.wc');if(c)pre(c.dataset.id)};
+$('nw').onclick=()=>edit(null);
+
+/* editor */
+let cur=null,isNew=false;
+function edit(id){
+  const w=store.find(x=>x.id==id);isNew=!w;
+  cur=w?JSON.parse(JSON.stringify(w)):{id:Date.now(),name:'',blocks:[{t:'w',d:1000,p:360}]};
+  $('nm').value=cur.name;$('del').hidden=isNew;$('et').textContent=isNew?'Novo treino':'Editar treino';$('msg').textContent='';
+  blocks();show('edit');
+}
+const preview=()=>{$('pv').innerHTML=bars(cur)};
+function blocks(){
+  $('bl').innerHTML=cur.blocks.map((b,i)=>{
+    const f=(k,l,v,ph)=>`<label>${l}<input class="in" data-i="${i}" data-k="${k}" value="${v??''}" placeholder="${ph||''}" inputmode="${k==='p'?'text':'numeric'}"></label>`;
+    const pv=b.p?fmt(b.p):'';
+    return `<div class="card"><div class="row"><b style="font-weight:500">${NM[b.t]}</b><button class="sm" data-x="${i}">Remover</button></div><div class="fg" style="margin-top:8px">${b.t==='i'?f('reps','Repetições',b.reps)+f('d','Tiro (m)',b.d)+f('p','Ritmo /km',pv,'4:30')+f('rd','Trote (m)',b.rd):f('d','Distância (m)',b.d)+f('p','Ritmo /km',pv,'opcional')}</div></div>`}).join('');
+  preview();
+}
+$('bl').oninput=e=>{const t=e.target,b=cur.blocks[t.dataset.i];if(!b)return;b[t.dataset.k]=t.dataset.k==='p'?pp(t.value):Math.max(0,parseInt(t.value)||0);preview()};
+$('bl').onclick=e=>{const x=e.target.dataset.x;if(x!==undefined){cur.blocks.splice(+x,1);blocks()}};
+$('add').onclick=e=>{const a=e.target.dataset.a;if(!a)return;cur.blocks.push({w:{t:'w',d:1000,p:360},c:{t:'c',d:2000,p:330},k:{t:'k',d:1000,p:375},i:{t:'i',reps:6,d:400,p:270,rd:200}}[a]);blocks()};
+$('sv').onclick=()=>{
+  if(!cur.blocks.length||cur.blocks.some(b=>!b.d||(b.t==='i'&&!b.reps))){$('msg').textContent='Cada bloco precisa de distância (e de repetições, nos tiros).';return}
+  cur.name=$('nm').value.trim()||'Treino sem nome';
+  const i=store.findIndex(x=>x.id==cur.id);i<0?store.push(cur):store[i]=cur;persist();home();
+};
+$('del').onclick=()=>{if(confirm('Excluir este treino?')){store=store.filter(x=>x.id!=cur.id);persist();home()}};
+$('eb').onclick=home;
 
 /* voz */
 function say(t){$('voice').textContent='“'+t+'”';try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='pt-BR';speechSynthesis.speak(u)}catch(e){}}
 const spoken=p=>{const m=Math.floor(p/60),s=Math.round(p%60);return s?m+' e '+s:m+' minutos'};
 
 /* gps */
-let acc=null,last=null;
+const SIM=location.search.includes('sim');
+let acc=null,last=null,gpsOn=false;
 const hav=(a,b)=>{const R=6371000,r=x=>x*Math.PI/180,dl=r(b.lat-a.lat),dn=r(b.lon-a.lon),q=Math.sin(dl/2)**2+Math.cos(r(a.lat))*Math.cos(r(b.lat))*Math.sin(dn/2)**2;return 2*R*Math.asin(Math.sqrt(q))};
 function onFix(pos){
   acc=pos.coords.accuracy;
-  const bars=acc<=10?'GPS: sinal bom':acc<=30?'GPS: sinal razoável':'GPS: sinal fraco';
-  $('gpsBox').textContent=bars+' (±'+Math.round(acc)+' m)';
+  $('gpsBox').textContent=(acc<=10?'GPS: sinal bom':acc<=30?'GPS: sinal razoável':'GPS: sinal fraco')+' (±'+Math.round(acc)+' m)';
   if(!running||acc>30)return;
   const p={lat:pos.coords.latitude,lon:pos.coords.longitude,t:pos.timestamp};
   if(last){const d=hav(last,p),dt=(p.t-last.t)/1000;if(d>=3&&dt>0&&d/dt<10){feed(d);last=p}}else last=p;
@@ -98,10 +174,21 @@ function startGps(){
   navigator.geolocation.watchPosition(onFix,e=>{$('gpsBox').textContent=e.code===1?'Permita o acesso à localização para treinar.':'Sem sinal de GPS.'},{enableHighAccuracy:true,maximumAge:0,timeout:15000});
 }
 
-/* treino */
+/* pré-treino */
+let W=[];
+function buildSeg(id){$(id).innerHTML=W.map(()=>'<span></span>').join('')}
+function pre(id){
+  cur=store.find(x=>x.id==id);W=flat(cur);const a=W[0],n=W[1];
+  $('wn').textContent=cur.name;$('pt').textContent=a.n;$('pd').textContent=dm(a.d)+(a.p?' a '+fmt(a.p)+'/km':'');
+  $('pn').textContent=n?dm(n.d)+' · '+n.n+(n.p?' a '+fmt(n.p)+'/km':''):'Última parte';
+  buildSeg('segPre');$('segPre').firstChild.className='u';
+  show('pre');if(!gpsOn){gpsOn=true;startGps()}
+}
+$('pb').onclick=home;
+
+/* treino ativo */
 let running=false,bi=0,bd=0,td=0,acum=0,t0=0,samples=[],lastCue=0,said100=false,simId=0,wl=null;
 const elapsed=()=>acum+(running?(Date.now()-t0)/1000:0);
-function buildSeg(id){$(id).innerHTML=W.map(()=>'<span></span>').join('')}
 function startBlock(){const b=W[bi];said100=false;lastCue=Date.now();say(b.n+(b.p?', ritmo alvo '+spoken(b.p):''))}
 function curPace(){if(samples.length<2)return NaN;const a=samples[0],z=samples[samples.length-1],dd=z[1]-a[1];return dd>5?((z[0]-a[0])/1000)/(dd/1000):NaN}
 function feed(d){
@@ -109,29 +196,24 @@ function feed(d){
   td+=d;bd+=d;const now=Date.now();samples.push([now,td]);while(samples.length&&now-samples[0][0]>12000)samples.shift();
   while(bd>=W[bi].d){bd-=W[bi].d;bi++;if(bi>=W.length){finish();return}startBlock()}
   const b=W[bi],p=curPace();
-  if(!said100&&W[bi].d-bd<=100&&W[bi].d>=300){said100=true;say('Faltam cem metros')}
+  if(!said100&&b.d-bd<=100&&b.d>=300){said100=true;say('Faltam cem metros')}
   if(b.p&&isFinite(p)&&now-lastCue>30000){if(p>b.p+15){say('Acelere um pouco');lastCue=now}else if(p<b.p-15){say('Desacelere um pouco');lastCue=now}}
   render(p);
 }
 function render(p){
-  const b=W[bi],nx=W[bi+1];
-  $('bn').textContent=b.n;
-  $('pace').textContent=fmt(p);
-  $('tgt').textContent='/km'+(b.p?' · alvo '+fmt(b.p):'');
-  const c=$('chip');
+  const b=W[bi],nx=W[bi+1],c=$('chip');
+  $('bn').textContent=b.n;$('pace').textContent=fmt(p);$('tgt').textContent='/km'+(b.p?' · alvo '+fmt(b.p):'');
   if(!b.p||!isFinite(p)){c.textContent=isFinite(p)?'Ritmo livre':'Aguardando';c.className='chip'}
   else if(p>b.p+10){c.textContent='Acelere';c.className='chip warn'}
   else if(p<b.p-10){c.textContent='Desacelere';c.className='chip warn'}
   else{c.textContent='No ritmo';c.className='chip'}
-  $('nx').textContent=nx?nx.d+' m · '+nx.n+(nx.p?' a '+fmt(nx.p)+'/km':''):'Última parte';
+  $('nx').textContent=nx?dm(nx.d)+' · '+nx.n+(nx.p?' a '+fmt(nx.p)+'/km':''):'Última parte';
   document.querySelectorAll('#segRun span').forEach((s,i)=>s.className=i<bi?'d':i===bi?'u':'');
-  $('dist').textContent=km(td);
-  $('time').textContent=clock(elapsed());
-  $('avg').textContent=td>50?fmt(elapsed()/(td/1000)):'--:--';
+  $('dist').textContent=km(td);$('time').textContent=clock(elapsed());$('avg').textContent=td>50?fmt(elapsed()/(td/1000)):'--:--';
 }
 async function begin(){
   if(!SIM&&(acc===null||acc>30)){$('gpsBox').textContent='Aguarde o sinal de GPS melhorar para começar.';return}
-  $('pre').hidden=true;$('run').hidden=false;
+  buildSeg('segRun');show('run');
   running=true;t0=Date.now();last=null;
   try{wl=await navigator.wakeLock.request('screen')}catch(e){}
   say('Vamos começar');setTimeout(startBlock,1800);
@@ -145,14 +227,11 @@ function pause(){
 }
 function finish(){
   const t=elapsed();running=false;clearInterval(simId);try{wl&&wl.release()}catch(e){}
-  say('Treino concluído. Bom trabalho');
-  $('run').hidden=true;$('end').hidden=false;
-  $('eD').textContent=km(td);$('eT').textContent=clock(t);$('eP').textContent=td>50?fmt(t/(td/1000)):'--:--';
+  say('Treino concluído. Bom trabalho');show('end');
+  $('en').textContent=cur.name;$('eD').textContent=km(td);$('eT').textContent=clock(t);$('eP').textContent=td>50?fmt(t/(td/1000)):'--:--';
 }
-buildSeg('segPre');buildSeg('segRun');
-document.querySelector('#segPre span').className='u';
 $('go').onclick=begin;$('pz').onclick=pause;$('stop').onclick=finish;
-startGps();
+home();
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
 </script>
 </body>
