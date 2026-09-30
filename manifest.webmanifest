@@ -1,6 +1,6 @@
 {
-  "name": "Ritmo",
-  "short_name": "Ritmo",
+  "name": "Paceup",
+  "short_name": "Paceup",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
